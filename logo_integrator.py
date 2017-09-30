@@ -124,12 +124,14 @@ def logo_integrate():
 
                 x += int(width_logo) + 10
 
-            image.save(PATH + "output/" + file_name_image)
+            image.save(PATH + "output/watermarked_" + file_name_image)
             print("\nCOMPUTER [.. -> Integrate a logo to images]: " +
                   "Logo was successfully integrated to \"" +
                   str(file_name_image) + "\".")
 
             i += 1
+
+        logo.close()
 
         print("\nCOMPUTER [.. -> Integrate a logo to images]: " +
               "All images was changed. Return to Main menu.")
