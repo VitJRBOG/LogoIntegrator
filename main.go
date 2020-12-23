@@ -39,13 +39,23 @@ func addLogoToImage(origImage, logoImage image.Image) {
 
 	draw.Draw(newImage, origImage.Bounds(), origImage, image.Point{0, 0}, draw.Src)
 
-	var x, y int
+	y := logoImage.Bounds().Max.Y
 	for {
-		draw.Draw(newImage, origImage.Bounds(), logoImage, image.Point{x, y}, draw.Over)
+		x := logoImage.Bounds().Max.X
+		for {
+			draw.Draw(newImage, origImage.Bounds(), logoImage, image.Point{x, y}, draw.Over)
+
+			x -= logoImage.Bounds().Max.X
+
+			if -(x) >= newImage.Bounds().Max.X {
+				break
+			}
+		}
+
+		y -= logoImage.Bounds().Max.Y
+
 		if -(y) >= newImage.Bounds().Max.Y {
 			break
-		} else {
-			y -= 100
 		}
 	}
 
