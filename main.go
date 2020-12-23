@@ -4,19 +4,41 @@ import (
 	"image"
 	"image/draw"
 	"image/png"
+	"io/ioutil"
 	"os"
+	"strings"
 )
 
 func main() {
 	createDirectories()
-	origImage := openImage("images/img.png")
-	logoImage := openImage("logo/logo.png")
-	addLogoToImage(origImage, logoImage)
+	filesNames := findFilesImages("images/")
+	for _, fileName := range filesNames {
+		origImage := openImage("images/" + fileName)
+		logoImage := openImage("logo/logo.png")
+		newImage := addLogoToImage(origImage, logoImage)
+		saveImage(newImage, fileName)
+	}
 }
 
 func createDirectories() {
 	os.Mkdir("images", 0700)
 	os.Mkdir("output", 0700)
+}
+
+func findFilesImages(path string) []string {
+	var filesNames []string
+	files, err := ioutil.ReadDir(path)
+	if err != nil {
+		panic(err.Error())
+	}
+	for _, file := range files {
+		posFileExtension := strings.LastIndex(file.Name(), ".") + 1
+		fileExtension := file.Name()[posFileExtension:]
+		if fileExtension == "png" {
+			filesNames = append(filesNames, file.Name())
+		}
+	}
+	return filesNames
 }
 
 func openImage(path string) image.Image {
@@ -33,7 +55,7 @@ func openImage(path string) image.Image {
 	return image
 }
 
-func addLogoToImage(origImage, logoImage image.Image) {
+func addLogoToImage(origImage, logoImage image.Image) *image.RGBA {
 
 	newImage := image.NewRGBA(origImage.Bounds())
 
@@ -59,14 +81,15 @@ func addLogoToImage(origImage, logoImage image.Image) {
 		}
 	}
 
-	saveImage(newImage)
+	return newImage
 }
 
-func saveImage(newImage *image.RGBA) {
-	newImageFile, err := os.Create("output/result.png")
+func saveImage(newImage *image.RGBA, fileName string) {
+	newImageFile, err := os.Create("output/" + fileName)
 	if err != nil {
 		panic(err.Error())
 	}
+	defer newImageFile.Close()
 
 	png.Encode(newImageFile, newImage)
 }
