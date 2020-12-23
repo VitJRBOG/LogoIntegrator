@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	"image/draw"
 	"image/png"
@@ -9,28 +8,55 @@ import (
 )
 
 func main() {
+	createDirectories()
+	origImage := openImage("images/img.png")
+	logoImage := openImage("logo/logo.png")
+	addLogoToImage(origImage, logoImage)
+}
+
+func createDirectories() {
 	os.Mkdir("images", 0700)
 	os.Mkdir("output", 0700)
+}
 
-	file, err := os.Open("images/img.jpg")
-	fmt.Print("file, err := " + err.Error())
+func openImage(path string) image.Image {
+	fileImage, err := os.Open(path)
+	if err != nil {
+		panic(err.Error())
+	}
+	defer fileImage.Close()
+	image, err := png.Decode(fileImage)
+	if err != nil {
+		panic(err.Error())
+	}
 
-	//logo, err := os.Open("images/logo.png")
-	//fmt.Print(err.Error())
+	return image
+}
 
-	img, _, err := image.Decode(file)
+func addLogoToImage(origImage, logoImage image.Image) {
 
-	rect := img.Bounds()
-	rgba := image.NewRGBA(rect)
-	draw.Draw(rgba, rect, img, rect.Min, draw.Src)
+	newImage := image.NewRGBA(origImage.Bounds())
 
-	//
+	draw.Draw(newImage, origImage.Bounds(), origImage, image.Point{0, 0}, draw.Src)
 
-	new_file, err := os.Create("output/img.jpg")
-	fmt.Print("new_file, err := " + err.Error())
+	var x, y int
+	for {
+		draw.Draw(newImage, origImage.Bounds(), logoImage, image.Point{x, y}, draw.Over)
+		if -(y) >= newImage.Bounds().Max.Y {
+			break
+		} else {
+			y -= 100
+		}
+	}
 
-	new_file.Close()
+	saveImage(newImage)
+}
 
-	png.Encode(new_file, img)
+func saveImage(newImage *image.RGBA) {
+	newImageFile, err := os.Create("output/result.png")
+	if err != nil {
+		panic(err.Error())
+	}
 
+	png.Encode(newImageFile, newImage)
 }
