@@ -1,2 +1,2 @@
-# GoLogoIntegrator
-Program for integration logo into images.
+# ImageStigmator
+Utility for imposing a logo on an images.
